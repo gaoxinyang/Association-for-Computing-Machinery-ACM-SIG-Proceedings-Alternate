@@ -46,8 +46,6 @@
 % For tracking purposes - this is V2.0 - May 2012
 
 \documentclass{sig-alternate}
-
-
 \begin{document}
 %
 % --- Author Metadata here ---
@@ -143,13 +141,13 @@ In this paper, the following aspects will be discussed:
 \item A generalized model can be built for cold start problem
 \end{itemize}
 
-\section{CTR Prediction and Current Challenges}
+\section{Related Work}
 
 \subsection{CTR Prediction Based on Linear Model}
 \subsection{CTR Prediction Based on Non-linear Model}
 \subsection{Cold-start:How to apply prediction model on New Advertisement Campaign}
 
-\section{Feature Engineering}
+\section{Counting Feature Theory and Practice}
 \subsection{Introduction of Counting Feature}
 \subsection{Relation Between Counting Feature and Binary Feature Based on Linear Model}
 \subsubsection{Frequency Feature}
@@ -344,22 +342,16 @@ From the above parts we can see that the weights of counting feature and countin
 w_{\text{counting}} = f(x_{\text{counting}})
 \end{equation}
 So assuming that for the same dataset if the input binary features follows linear regression model, then the corresponding counting feature will follow non-linear model, so it is reasonable we compare the results of logistic regression of binary feature with that of GBRT model for counting feature, the comparison is as follows:
-\subsection{Adform Dataset Introduction and Performance of CTR Prediction with Counting and Binary Feature}
 
 
-\section{Dataset Bias Anaysis}
-\subsection{Bias of Advertisement Campaign Datasets}
-\subsection{Domain Adaptation and Transfer Learning}
-\subsection{Cross-Dataset Generalization}
-
-\section{Cold Start CTR prediction}
+\subsection{Counting Feature Generation and Anaysis in Advertisement Cold Start Problem}
 In this part, the cold start problem will be discussed. Now the experiment is done in which the placement id is counted and when the clicks in one palcement id's corresponding is higher than 200, the instances will be remained, and the overlap of placement id in the train dataset and test dataset will be filtered out. Then for the training dataset all the campains in the test dataset are new. Many experiments are done now but result is confused. Generally the result is as follows: 
 
 Performance of Binary Feature in cold start > Counting Feature with update weights using new coming data > Counting feature without update weights using weights from previous campains > Binary feature without update weights
 
 
 I am trying to figure out the reason why binary feature performs well in cold start problem and it seems biased dataset is a cause and I try to split the model into generic and specific parts and overcome the bias.
-\subsection{Model Similarity Analysis}
+\subsubsection{Model Similarity Analysis}
 At first, we will start from the easier one, the frequency feature. Let's assume that we have two datasets, dataset \(Dataset_{\text{1}}\) and \(Dataset_{\text{2}}\), for each dataset we can get \(w_{\text{counting}}\) and \(w_{\text{binary}}\) respectively. Let's abbreviate them as \(w_{\text{c1}}\) and \(w_{\text{b1}}\) as well as \(w_{\text{c2}}\) and \(w_{\text{b2}}\). 
 
 From \ref{eq:12} we can get the following equation:
@@ -408,84 +400,154 @@ Trans = ((w_{\text{binary}}^T \times w_{\text{binary}})^{-1})^T \times (Diag(f))
 Then, we will focus on the transformation matrix. 
 
 Since \(((w_{\text{binary}}^T \times w_{\text{binary}})^{-1})^T\) is a symmetric matrix, so it equals to its own transposition. 
-\subsection{Minimise Dataset Bias}
+\subsubsection{Minimise Dataset Bias}
+
+
+
+\subsubsection{Toy Data Justification}
+
+\section{Dataset Bias Anaysis}
+\subsection{Bias of Advertisement Campaign Datasets}
+\subsection{Domain Adaptation and Transfer Learning}
+\subsection{Cross-Dataset Generalization}
+
+
 
 \section{Experiment}
-The data from 3-14 to 3-27 are regarded as training dataset, the data from 5- are regarded as test dataset, the count of training dataset is, test dataset is 
 
-\begin{table*}[h]
-\centering
-\begin{tabular}{ |c|c|c|c| } 
-\hline
-Shared Campaign  & Unique Train Dataset Campaign & Unique Test Dataset Campaign \\
-\hline
-1310190 & 1307617, 884194, 1283235, 1335301  & 1466432, 1448738 \\ 
-& 1385319, 1349577, 1276074, 1363723 & 1406405, 1424966 \\ 
-&  1357245, 1341802, 1341937, 1307838 & 1424330, 1445998 \\ 
-&  1285558, 1358167, 1305663, 1299899 & 1458704, 1454382 \\
-&  1363711, 1386205, 1368830, 1366271 &  1472727, 1452138 \\
-\hline
-\end{tabular}
-\label{tab:campainid}
-\end{table}
+\subsection{Experiment Setup, Dataset Introduction and Measurement Method}
 
-Only the instances from the campaign with more than 500 clicks and 50000 impressions will be remained, the campaigns can be classified as the ones shared by the training and test dataset, the ones unique to training dataset and the one unique to test dataset.  
+\subsection{Performance Comparison of Binary and Counting Feature in CTR prediction Problem}
 
-\(1/3\) of the training dataset is used as train dataset, \(2/3\) will be used as count dataset. In order to increase the generalization of training dataset to improve the universality of the trained prediction model, four campaign will constitute one training dataset and two campaigns are used to make up a test dataset to decrease the bias of test dataset.  
+\subsection{Performance Comparison of Binary and Counting Feature in Cold Start Problem}
 
-For the sake of convenience, the training dataset will be labeled as 1,2,3,4 and 5, from top to the bottom, as well as the test dataset. For each training dataset, the prediction model will be build based on it which will be used to test the data stream from each of the test dataset, the result is in 6.3.
+In this part, the experiments will be done based on the dataset provided by a ad company in March which includes the data for 14 consecutive days, the dataset are separated by client id so that in each small dataset only the impressions from one client. The following small datasets are selected due to their huge chunk. which are as follows:
+
+\begin{table}[h]
+ \centering
+ \begin{tabular}{ ||c c || } 
+ \hline
+ Client id  & Number \\
+ \hline
+ 20762 & 1068606 \\ 
+  15140 & 764355 \\ 
+   1371 & 576709 \\ 
+   12482 & 557120\\
+ \hline
+ \end{tabular}
+ \label{tab:campainid}
+ \end{table}
+ 
+ 
+
+
+% The data from 3-14 to 3-27 are regarded as training dataset, the data from 5- are regarded as test dataset, the count of training dataset is, test dataset is ~\ref{tab:campainid}
+
+% \begin{table*}[h]
+% \centering
+% \begin{tabular}{ |c|c|c|c| } 
+% \hline
+% Shared Campaign  & Unique Train Dataset Campaign & Unique Test Dataset Campaign \\
+% \hline
+% 1310190 & 1307617, 884194, 1283235, 1335301  & 1466432, 1448738 \\ 
+% & 1385319, 1349577, 1276074, 1363723 & 1406405, 1424966 \\ 
+% &  1357245, 1341802, 1341937, 1307838 & 1424330, 1445998 \\ 
+% &  1285558, 1358167, 1305663, 1299899 & 1458704, 1454382 \\
+% &  1363711, 1386205, 1368830, 1366271 &  1472727, 1452138 \\
+% \hline
+% \end{tabular}
+% \label{tab:campainid}
+% \end{table}
+
+% Only the instances from the campaign with more than 500 clicks and 50000 impressions will be remained, the campaigns can be classified as the ones shared by the training and test dataset, the ones unique to training dataset and the one unique to test dataset.  
+
+% \(1/3\) of the training dataset is used as train dataset, \(2/3\) will be used as count dataset. In order to increase the generalization of training dataset to improve the universality of the trained prediction model, four campaign will constitute one training dataset and two campaigns are used to make up a test dataset to decrease the bias of test dataset.  
+
+% For the sake of convenience, the training dataset will be labeled as 1,2,3,4 and 5, from top to the bottom, as well as the test dataset. For each training dataset, the prediction model will be build based on it which will be used to test the data stream from each of the test dataset, the result is in 6.3.
 
 \subsection{Experiment Setup - Dataset Preparation}
 \subsection{Measurement Methods}
 \subsection{Performance of Cold-start CTR prediction using Binary and Counting Feature}
 
-Experiment 1.1: Training Dataset 1 (141366), Test Dataset 1 (243525):
-\begin{figure}
+Experiment 1.1: Training Dataset  (20762), Test Dataset  (15140) in Figure~\ref{fig:fig1}.:
+\begin{figure}[t]
 \centering
-\includegraphics[width=1.\columnwidth]{imagescoldstart/train1test1.pdf}
-\caption{Caption}
-\label{fig:my_label}
+\includegraphics[width=\columnwidth]{20762_15140.eps}
+\caption{Training Dataset  (20762), Test Dataset  (15140)}
+\label{fig:fig1}
 \end{figure}
 
+Experiment 1.2: Training Dataset  (20762), Test Dataset  (1371) in Figure~\ref{fig:fig2}.:
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{20762_1371.eps}
+\caption{Training Dataset  (20762), Test Dataset  (1371)}
+\label{fig:fig2}
+\end{figure}
 
-Experiment 1.2: Training Dataset 1 (141366), Test Dataset 2 (44445):
+Experiment 1.3: Training Dataset  (20762), Test Dataset  (12482) in Figure~\ref{fig:fig2}.:
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{20762_12482.eps}
+\caption{ Training Dataset  (20762), Test Dataset  (12482)}
+\label{fig:fig2}
+\end{figure}
 
-Experiment 1.3: Training Dataset 1 (141366), Test Dataset 3 (97563):
+Experiment 2.1: Training Dataset  (15140), Test Dataset  (20762) in Figure~\ref{fig:fig3}.:
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{15140_20762.eps}
+\caption{Training Dataset  (15140), Test Dataset  (20762)}
+\label{fig:fig3}
+\end{figure}
 
+Experiment 2.2: Training Dataset  (15140), Test Dataset  (1371) in Figure~\ref{fig:fig4}.:
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{15140_1371.eps}
+\caption{Training Dataset  (15140), Test Dataset  (1371)}
+\label{fig:fig4}
+\end{figure}
 
+Experiment 2.3: Training Dataset  (15140), Test Dataset  (12482) in Figure~\ref{fig:fig5}.:
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{15140_12482.eps}
+\caption{Training Dataset  (15140), Test Dataset  (12482) }
+\label{fig:fig5}
+\end{figure}
 
+Experiment 3.1: Training Dataset  (1371), Test Dataset  (20762) in Figure~\ref{fig:fig6}.:
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{1371_20762.eps}
+\caption{ Training Dataset  (1371), Test Dataset  (20762)}
+\label{fig:fig6}
+\end{figure}
 
-Experiment 2.1: Training Dataset 2 (90664), Test Dataset 1 (243525):
+Experiment 3.2: Training Dataset  (1371), Test Dataset  (15140) in Figure~\ref{fig:fig7}.:
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{1371_15140.eps}
+\caption{Training Dataset  (1371), Test Dataset  (15140)}
+\label{fig:fig7}
+\end{figure}
 
-Experiment 2.2: Training Dataset 2 (90664), Test Dataset 2 (44445):
+Experiment 3.3: Training Dataset  (1371), Test Dataset  (12482) in Figure~\ref{fig:fig8}.:
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{1371_12482.eps}
+\caption{Training Dataset  (1371), Test Dataset  (12482)}
+\label{fig:fig8}
+\end{figure}
 
-Experiment 2.3: Training Dataset 2 (90664), Test Dataset 3 (97563):
-
-
-
-
-Experiment 3.1: Training Dataset 3 (14366), Test Dataset 1 (243525):
-
-Experiment 3.2: Training Dataset 3 (141366), Test Dataset 2 (44445):
-
-Experiment 3.3: Training Dataset 3 (141366), Test Dataset 3 (97563):
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Experiment 4.1: Training Dataset  (12482), Test Dataset  (20762) in Figure~\ref{fig:fig9}.:
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{12482_20762.eps}
+\caption{Training Dataset  (12482), Test Dataset  (20762)}
+\label{fig:fig9}
+\end{figure}
 
 
 
