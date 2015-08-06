@@ -46,6 +46,12 @@
 % For tracking purposes - this is V2.0 - May 2012
 
 \documentclass{sig-alternate}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+
+%Includes "References" in the table of contents
+\usepackage[nottoc]{tocbibind}
+
 \begin{document}
 %
 % --- Author Metadata here ---
@@ -144,7 +150,18 @@ In this paper, the following aspects will be discussed:
 \section{Related Work}
 
 \subsection{CTR Prediction Based on Linear Model}
+
+ \cite{richardson2007predicting} makes use of logistic regression to predict clicks. \cite{mcmahan2013ad} discusses on the practical engineering of CTR estimation as well as the performance of applying traditional machine learning model on complex huge dataset. Similar models are also discussed. \cite{zhu2010novel} discusses on General Click Model based on Bayesian network. \cite{graepel2010web} talsk aboutOnline Bayesian Probit Regression. 
+
+
+
 \subsection{CTR Prediction Based on Non-linear Model}
+\cite{mohan2011web} discusses on use of GBRT on web ranking
+
+
+
+
+\subsection{Domain Adaptation Algorithms}
 \subsection{Cold-start:How to apply prediction model on New Advertisement Campaign}
 
 \section{Counting Feature Theory and Practice}
@@ -417,11 +434,32 @@ Since \(((w_{\text{binary}}^T \times w_{\text{binary}})^{-1})^T\) is a symmetric
 
 \subsection{Experiment Setup, Dataset Introduction and Measurement Method}
 
+For Cold Start problem, we will do the experiment in the following scenario. An ad company serves for different clients for CTR prediction. Based on the information from old campaigns, it hopes to get accurate CTR prediction result for new campaigns without training new model but directly make use the off-the-shelf model derived from old campaigns. \vspace{5mm}
+
+In this experiment, the whole 14 days dataset will be splitted based on the client id so that in each sub dataset all impressions are from a unique client. To simulate the real world situation that the ad data is not static but performs as a continuous data stream, the new campaign dataset will be further divided into smaller data capsules. Then on the one side, the old campaign dataset will be transformed into binary feature dataset then the model will be trained based on it. Then capsules will be sent into the model in sequence to estimate its CTR thus AUC for test dataset will be obtained. \vspace{5mm}
+
+While on the other side, counting feature bears the advantage that its number of features are limited, and feature values are continuous. So unlike 0-1 binary feature, it is possible to update the feature values as more information from new campaign arrives with fixed model weights. The representation of two scenarios can be represented as follows:
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{binaryrepresent.eps}
+\caption{Estimate new campaign CTR using Binary Feature}
+\label{fig:binary}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{counting.eps}
+\caption{Estimate new campaign CTR using Counting Feature}
+\label{fig:counting}
+\end{figure}
+
+
 \subsection{Performance Comparison of Binary and Counting Feature in CTR prediction Problem}
 
 \subsection{Performance Comparison of Binary and Counting Feature in Cold Start Problem}
 
-In this part, the experiments will be done based on the dataset provided by a ad company in March which includes the data for 14 consecutive days, the dataset are separated by client id so that in each small dataset only the impressions from one client. The following small datasets are selected due to their huge chunk. which are as follows:
+In this part, the experiments will be done based on the dataset provided by a ad company in March which includes the data for 14 consecutive days, the dataset are separated by client id so that in each small dataset there are only the impressions from one unique client. In this experiment, the client with more than 500,000 impression are chosen so that 4 sub datasets are obtained which are from distinct clients. The detail of the four clients are shown in Table~\ref{tab:campainid}.
 
 \begin{table}[h]
  \centering
@@ -435,10 +473,26 @@ In this part, the experiments will be done based on the dataset provided by a ad
    12482 & 557120\\
  \hline
  \end{tabular}
+ \caption{Four Biggest clients}
  \label{tab:campainid}
  \end{table}
- 
- 
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{Datasetbias.eps}
+\caption{Three types of relation of feature sets between train dataset and test dataset}
+\label{fig:datasetbias}
+\end{figure}
+
+The figure above shows the truth that dataset significantly decide upper bound of the accuracy to predict CTR. above performance comparison of binary feature and counting feature on CTR estimation reveals that performance of counting feature using non-linear regression model is comparable to that of binary feature using linear regression model, the precondition is that the training and test dataset share most of the features. However, in real world we will always be faced up with the situation that the information is unbalanced in train and test dataset. We define \textit{Feature Set} as a criterion to measure the information obtained in the dataset, which is represented by  \(S_i(f)\), in which \(f\) are the unique features in the dataset \(i\).\vspace{5mm}
+
+The relation of the feature sets in dataset \(i\) and \(j\) can be catogrized into three types, in which \(i\) is the test dataset, and \(j\) is the training dataset, as shown in Figure~\ref{fig:datasetbias}.:
+\begin{itemize}
+\item When \(s_i \subset s_j\), the binary feature should perform better than counting feature in terms of CTR estimation. Since in this way all the feature information needed by test dataset is inclusive in training dataset, the model contains all the infomraiton as a general model, as with the above conclusion when both using linear logistic regression, binary feature is superior to counting feature.  
+\item When \(s_i \cap s_j \equiv 0\), the counting feature should perform better than binary feature which degenerates into random algorithm. The reason is that there is no overlap between \(s_i\) and \(s_j)\), so all feature information in test dataset will be regared as \textit{other} for model derived from training dataset. However, for counting feature, this deficiency can be made up with the gradual increasing information of the dataset distribution. The counting value to some extent represents the feature distribution so when we assume that the train and test dataset share similar feature value distribution counting feature can still perform rather well while at same time prediction using binary feature is totoally impossible.
+\item When \(s_i \cap s_j \neq 0\), the feature informaiton at this time is shared by train and test dataset. We define \textit{General Information} as the information shared by all the advertisement campaigns, and \textit{Specific Information} as the unique feature information owned by each of the campaign. In this situation, both binary feature and counting feature performs well granted that train and test dataset share enough feature information so that the model to some extent is universal among datasets. However, the upper-bound of performance of binary feature is around the AUC result of the CTR prediction for first data capsule in the data stream assuming the distribution among test dataset is identical, conversely, that is the lower-bound of the performance of counting feature since with the increasing of test instances, counting value will tend towards the real distribution of test dataset to compensate of the unbalanced counting weights value. 
+\end{itemize}
 
 
 % The data from 3-14 to 3-27 are regarded as training dataset, the data from 5- are regarded as test dataset, the count of training dataset is, test dataset is ~\ref{tab:campainid}
@@ -465,12 +519,11 @@ In this part, the experiments will be done based on the dataset provided by a ad
 
 % For the sake of convenience, the training dataset will be labeled as 1,2,3,4 and 5, from top to the bottom, as well as the test dataset. For each training dataset, the prediction model will be build based on it which will be used to test the data stream from each of the test dataset, the result is in 6.3.
 
-\subsection{Experiment Setup - Dataset Preparation}
-\subsection{Measurement Methods}
-\subsection{Performance of Cold-start CTR prediction using Binary and Counting Feature}
+
+
 
 Experiment 1.1: Training Dataset  (20762), Test Dataset  (15140) in Figure~\ref{fig:fig1}.:
-\begin{figure}[t]
+\begin{figure}[h]
 \centering
 \includegraphics[width=\columnwidth]{20762_15140.eps}
 \caption{Training Dataset  (20762), Test Dataset  (15140)}
@@ -478,7 +531,7 @@ Experiment 1.1: Training Dataset  (20762), Test Dataset  (15140) in Figure~\ref{
 \end{figure}
 
 Experiment 1.2: Training Dataset  (20762), Test Dataset  (1371) in Figure~\ref{fig:fig2}.:
-\begin{figure}[t]
+\begin{figure}[h]
 \centering
 \includegraphics[width=\columnwidth]{20762_1371.eps}
 \caption{Training Dataset  (20762), Test Dataset  (1371)}
@@ -486,7 +539,7 @@ Experiment 1.2: Training Dataset  (20762), Test Dataset  (1371) in Figure~\ref{f
 \end{figure}
 
 Experiment 1.3: Training Dataset  (20762), Test Dataset  (12482) in Figure~\ref{fig:fig2}.:
-\begin{figure}[t]
+\begin{figure}[h]
 \centering
 \includegraphics[width=\columnwidth]{20762_12482.eps}
 \caption{ Training Dataset  (20762), Test Dataset  (12482)}
@@ -502,7 +555,7 @@ Experiment 2.1: Training Dataset  (15140), Test Dataset  (20762) in Figure~\ref{
 \end{figure}
 
 Experiment 2.2: Training Dataset  (15140), Test Dataset  (1371) in Figure~\ref{fig:fig4}.:
-\begin{figure}[t]
+\begin{figure}[h]
 \centering
 \includegraphics[width=\columnwidth]{15140_1371.eps}
 \caption{Training Dataset  (15140), Test Dataset  (1371)}
@@ -549,6 +602,23 @@ Experiment 4.1: Training Dataset  (12482), Test Dataset  (20762) in Figure~\ref{
 \label{fig:fig9}
 \end{figure}
 
+Experiment 4.2: Training Dataset  (12482), Test Dataset  (1371) in Figure~\ref{fig:fig10}.:
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{12482_1371.eps}
+\caption{Training Dataset  (12482), Test Dataset  (1371)}
+\label{fig:fig10}
+\end{figure}
+
+Experiment 4.2: Training Dataset  (12482), Test Dataset  (15140) in Figure~\ref{fig:fig11}.:
+\begin{figure}[h]
+\centering
+\includegraphics[width=\columnwidth]{12482_15140.eps}
+\caption{Training Dataset  (12482), Test Dataset  (15140)}
+\label{fig:fig11}
+\end{figure}
+
+
 
 
 
@@ -556,7 +626,7 @@ Experiment 4.1: Training Dataset  (12482), Test Dataset  (20762) in Figure~\ref{
 
 
 \section{Conclusions}
-
+ 
 %\end{document}  % This is where a 'short' article might terminate
 
 %ACKNOWLEDGMENTS are optional
@@ -569,8 +639,8 @@ Experiment 4.1: Training Dataset  (12482), Test Dataset  (20762) in Figure~\ref{
 % The following two commands are all you need in the
 % initial runs of your .tex file to
 % produce the bibliography for the citations in your paper.
-\bibliographystyle{abbrv}
-\bibliography{sigproc}  % sigproc.bib is the name of the Bibliography in this case
+\bibliographystyle{unsrt}
+\bibliography{sigproc}
 % You must have a proper ".bib" file
 %  and remember to run:
 % latex bibtex latex latex
@@ -582,3 +652,4 @@ Experiment 4.1: Training Dataset  (12482), Test Dataset  (20762) in Figure~\ref{
 %\balancecolumns
 
 \end{document}
+ 
