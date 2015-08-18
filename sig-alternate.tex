@@ -8,8 +8,7 @@
 \usepackage[english]{babel}
 \usepackage{graphicx}
 \graphicspath{{images/}}
-\DeclareGraphicsRule{.png}{png}{}
-
+\DeclareGraphicsExtensions{.png,.pdf}
 \usepackage{subcaption}
 
 \begin{document}
@@ -46,7 +45,7 @@ Xinyang Gao
 
 \maketitle
 \begin{abstract}
-In Cilck-Through Rate (CTR) estimation problems for online advertising, the feature engineering work is a crucial part. For example, Baidu extracts hundreds of billions of binary features (or called model features) to train a huge linear regression estimator. On the other side, there is another kind of features, called counting features, representing statistical property of the dataset and flexible in changing value, which are always continuous and normally only have less than 1000 in number in CTR estimation tasks. For a simple example, consider the user city feature. For the binary model features, if there are 10k cities in the dataset, there should be 10k unique binary features, of which only one has the value 1 while others are all valued as 0 (referred as one-hot encoding). For counting features, there are only two for the city description no matter how many cities there are in the dataset: (i) the average CTR given the city (e.g., 0.12\% for Shanghai); (ii) the frequency of such city in the dataset (e.g., 10 million). In this paper, we exploited the property and performance of counting feature compared to binary feature using valuable real world data provided by Adform. AUC and RMSE are used as criterion for performance comparison which shows that performance of counting feature utilising non-linear regression model is comparable to that of binary feature utilising linear regression model, which is also supported by mathematical justification. Further, we apply counting feature theory on cross-domain learning, the goal is to solve the canonical \textit{cold start} problem for online advertisement CTR prediction, so that model trained from existing campaigns can be directly used by new campaign without updating model weights but updating counting values. Mathematically by transferring high dimensional binary feature space into low dimensional binary feature space, variability of model can be decreased while similarities among models will be enhanced, thus increasing the generality of CTR prediction model and making \textit{non-weights-update} cross domain CTR prediction model possible. Experiment results validate our assumption and shows counting feature performs much better than binary feature with stable model but variable feature values. By analysing dataset similarities we show that the accuracy CTR prediction enhancement is indeed resulted from the formation of counting feature but not the dimensionality reduction.  
+In Click-Through Rate (CTR) estimation problems for online advertising, the feature engineering work is a crucial part. For example, Baidu extracts hundreds of billions of binary features (or called model features) to train a huge linear regression estimator. On the other side, there is another kind of features, called counting features, representing statistical property of the dataset and flexible in changing value, which are always continuous and normally only have less than 1000 in number in CTR estimation tasks. For a simple example, consider the user city feature. For the binary model features, if there are 10k cities in the dataset, there should be 10k unique binary features, of which only one has the value 1 while others are all valued as 0 (referred as one-hot encoding). For counting features, there are only two for the city description no matter how many cities there are in the dataset: (i) the average CTR given the city (e.g., 0.12\% for Shanghai); (ii) the frequency of such city in the dataset (e.g., 10 million). In this paper, we exploited the property and performance of counting feature compared to binary feature using valuable real world data provided by Adform. AUC and RMSE are used as criterion for performance comparison which shows that performance of counting feature utilising non-linear regression model is comparable to that of binary feature utilising linear regression model, which is also supported by mathematical justification. Further, we apply counting feature theory on cross-domain learning, the goal is to solve the canonical \textit{cold start} problem for online advertisement CTR prediction, so that model trained from existing campaigns can be directly used by new campaign without updating model weights but updating counting values. Mathematically by transferring high dimensional binary feature space into low dimensional binary feature space, variability of model can be decreased while similarities among models will be enhanced, thus increasing the generality of CTR prediction model and making \textit{non-weights-update} cross domain CTR prediction model possible. Experiment results validate our assumption and shows counting feature performs much better than binary feature with stable model but variable feature values. By analysing dataset similarities we show that the accuracy CTR prediction enhancement is indeed resulted from the formation of counting feature but not the dimensionality reduction.  
 
 
 
@@ -57,7 +56,7 @@ In Cilck-Through Rate (CTR) estimation problems for online advertising, the feat
 
 \section{Introduction}
 Real time bidding (RTB) has recently become paradigm for online advertising which subversively transformed the whole ecosystem. Unlike traditional contextual advertising
-RTB allows advertisers to bid for each of the impression based on user profile data, but not the contextual web data. Demand side platform (DSP)'s responsibility is to help advertisers optimize their bidding strategy in order to maximize the return of investment (ROI) for its clients. When a potential advertisement audience visits a webpage, a bid request will be sent to DSP who will decide a price to bid for the webpace slot. Economically we know that \(Profit = Revenue - Cost\), in which cost is the winning price for the advertiser, called \textit{Cost-Per-Click} and revenue is the expected return that can be obtained from the potential advertisement audience based on auction winning function which can be found in \cite{zhang2014optimal}. To be simplified, the revenue can be yielded by the product of the expected click per impression and the revenue that one click can bring. The pursuit of maximum profit can be achieved by either increasing revenue or decreasing the cost, accurate CTR prediction is crucial to this process which determines the expected potential revenue for the impression and according bidding price. 
+RTB allows advertisers to bid for each of the impression based on user profile data, but not the contextual web data. Demand side platform (DSP)'s responsibility is to help advertisers optimize their bidding strategy in order to maximize the return of investment (ROI) for its clients. When a potential advertisement audience visits a webpage, a bid request will be sent to DSP who will decide a price to bid for the webspace slot. Economically we know that \(Profit = Revenue - Cost\), in which cost is the winning price for the advertiser, called \textit{Cost-Per-Click} and revenue is the expected return that can be obtained from the potential advertisement audience based on auction winning function which can be found in \cite{zhang2014optimal}. To be simplified, the revenue can be yielded by the product of the expected click per impression and the revenue that one click can bring. The pursuit of maximum profit can be achieved by either increasing revenue or decreasing the cost, accurate CTR prediction is crucial to this process which determines the expected potential revenue for the impression and according bidding price. 
 CTR estimation has been researched intensively in recent years academically and industrially, it is especially important to the industry since the CTR prediction impacts the user experience and advertiser revenue. Microsoft \cite{graepel2010web}has proposed a novel way for CTR prediction on Sponsored Search in Microsoft’s Bing search engine, Gaussian beliefs over weights of the model is maintained and the weights are updated online based on approximate message passing. Facebook \cite{he2014practical} also demonstrates their success on online advertisement CTR prediction. With the combination of decision trees with logistic regression, and other techniques such as feature selection, data freshness, learning rate schema and data sampling, the performance can be increased. However, most current work are restricted to the scope of enhancement of model formation, parameter adjustment, feature engineering, but according to facebook recent report \cite{facebook2015}, the \textit{experimental paradigm is reaching its limits}, as an experimental science, a single experimental paradigm, which is (i) Setting aside test dataset, (ii) Estimating prediction function using training dataset, and (iii) Measure final performance using testing dataset. However, for such an experiment, selection of data is the most crucial part, the data distribution has to be matched with the operational conditions. So in order to improve the performance of machine learning model, better data is more improtant than better algorithm and better features.
 
 However, in the age of big data \cite{lohr2012age}, large dataset are collected automatically so bias is inevitable among datasets which results in the unrealistic results from training /testing using biased sets \cite{torralba2011unbiased}. So for current research most studies are done based on one single dataset, so the classifiers obtained can only works statistically under a certain distributions. Only if with the updates of the model, can the classifiers be applied to new campaigns in the concept of online advertisement. 
@@ -80,29 +79,56 @@ The rest of the paper is organised as follows, section 2 discusses the related w
 
 \section{Related Work}
 
-\textb{CTR Prediction Based on Linear Model}
+
+
+Click Through Prediction (CTR) prediction is a well-studied online advertisement problem in recent years. Advertisers 
+
+
 
  \cite{richardson2007predicting} makes use of logistic regression to predict clicks. \cite{mcmahan2013ad} discusses on the practical engineering of CTR estimation as well as the performance of applying traditional machine learning model on complex huge dataset. Similar models are also discussed. \cite{zhu2010novel} discusses on General Click Model based on Bayesian network. \cite{graepel2010web} talsk aboutOnline Bayesian Probit Regression. 
 
 
-
-\textb{CTR Prediction Based on Non-linear Model}
 \cite{mohan2011web} discusses on use of GBRT on web ranking
 
 
+Transfer learning is a popular research topic in the fields of artificial intelligence, machine learning, NLP, etc. In the field of machine learning, different from traditional predictive machine learning methods which ignores the difference between train and test sets, in typical real world the source and target sets should suffer from the situation of \textit{dataset shift} \cite{quionero2009dataset}. Therefore, transfer learning will play a role here, which can transfer the knowledge from previous domain to the new domain. \cite{pan2010survey} makes a detailed discussion on transfer learning focusing on categorizing transfer learning for classification, regression, and clustering problems.When the source and target tasks are different, and the source and target domains are same, it is called \textit{inductive transfer learning}. 
 
-
-\textb{Cross Domain Learning}
 
 
 \section{Counting Feature Theory and Practice}
 \subsection{Introduction of Counting Feature}
+\begin{table}[t]
+\center
+\vspace{-5pt}
+\caption{Notations and descriptions.}
+\label{tab:notation-des}
+\small
+\begin{tabular}{rl}
+Notation & Description\\
+\hline
+\\ [-2.0ex]
+$\bs{x_{\text{b}(N\times D)}}$ & The one-hot binary feature space.\\
+$\bs{x_{\text{c}(N\times D)}}$ & The continuous counting feature space.\\
+$\bs{y_{(1\times N)}}$ & The click result space\\
+$w_{\text{b}(1\times D)}$ & The weights vector space of binary feature\\
+$w_{\text{c}(1\times D)}$ & The weights vector space of counting feature\\
+$T_{(M\times D)}$ & Transform Binary Feature to Counting Feature matrix\\
+$A_{(N\times 1)}$ & Calculating frequency matrix which is an all-one vector $\vec{1 }$\\
+$C_{(M\times D)}$ & Field  matrix which is a 0-1 matrix concatenated with \textsl{}{M} \\
+& vectors \(V_{m,(m = 1...M)}\) and in each vector \(V_m\) only its \\
+& corresponding positions in field \textsl{m} is filled with 1, \\
+& with other positions 0. \\
+$Diag$ & Transform the column vector into a diagonal matrix
+\end{tabular}
+\end{table}
+
 \subsection{Relation Between Counting Feature and Binary Feature Based on Linear Model}
 \subsubsection{Frequency Feature}
 \setlength{\parindent}{5ex}
 
 The \textsl{Click Through Rate} (CTR) prediction problem can be characterized as a logistic regression problem. we can use features of ads, terms, and advertisers to learn a model that accurately predicts the CTR for new ads. To train the prediction model, we firstly define the following symbols for later explanations.\vspace{5mm}
-The training dataset contains number of \textsl{N} instances, which are the records in datalog containing \textsl{M} fields of user, advertiser and publisher information, as well as their clicking information for each ad impression. The result of the impression, namely whether the user clicks on the ad will be represent by \textsl{y}. Even though normally we use logistic regression to train the model since the dependent variable is dichotomous, here the liner regression is used to prove the relation between model built by \(x_{\text{counting}}\) representing the data instances encoded into \textsl{Counting Feature} and model built by \(x_{\text{binary}}\) representing the data instances encoded into one-hot \textsl{Binary Feature}. The dimension of \(x_{\text{counting}}\) is the number of fields \textsl{M} well the dimension of \(x_{\text{binary}}\) is represend by \textsl{D} for which \(D >> M\). The more detailed information about symbols are shown as follows:
+The training dataset contains number of \textsl{N} instances, which are the records in datalog containing \textsl{M} fields of user, advertiser and publisher information, as well as their clicking information for each ad impression. The result of the impression, namely whether the user clicks on the ad will be represent by \textsl{y}. Even though normally we use logistic regression to train the model since the dependent variable is dichotomous, here the liner regression is used to prove the relation between model built by \(x_{\text{counting}}\) representing the data instances encoded into \textsl{Counting Feature} and model built by \(x_{\text{binary}}\) representing the data instances encoded into one-hot \textsl{Binary Feature}. The dimension of \(x_{\text{counting}}\) is the number of fields \textsl{M} well the dimension of \(x_{\text{binary}}\) is represend by \textsl{D} for which \(D >> M\). The more detailed information about symbols are shown in Table 1.
+\iffalse
 \begin{itemize}
 \item  Binary Features : \(x_{\text{binary}(N\times D)}\)
 \item  Counting Feature : \(x_{\text{counting}(N\times D)}\)
@@ -116,8 +142,9 @@ $\vec{1 }$
 \item  Diag function : Transform the column vector into a diagonal matrix.\vspace{5mm} 
 
 \end{itemize}
+\fi
  It can be proven that 
-\[ T = C\times Diag(x_{binary}A) \]
+\[ T = C\times Diag(x_{b}A) \]
 The formation of \textsl{T} is 
 
 $$
@@ -137,65 +164,65 @@ $$\vec{0 }$$ , f_{m1}, f_{m2}, ...f_{mi}... , f_{mI} ,$$\vec{0 }$$
 \noindent Next, the relations between \(w_{\text{binary}}\) and \(w_{\text{counting}}\) are proven as follows. 
 
 \begin{equation}
-w_{\text{binary}} \times x_{\text{binary}}^T = y 
+w_{\text{b}} \times x_{\text{b}}^T = y 
 \end{equation}
 
 \begin{equation}
-(w_{\text{binary}}^T \times w_{\text{binary}}) \times x_{\text{binary}}^T = w_{\text{binary}}^T \times y 
+(w_{\text{b}}^T \times w_{\text{b}}) \times x_{\text{b}}^T = w_{\text{b}}^T \times y 
 \end{equation}
 
 \begin{equation}
-x_{\text{binary}}^T = (w_{\text{binary}}^T \times w_{\text{binary}})^{-1} \times w_{\text{binary}}^T \times y 
+x_{\text{b}}^T = (w_{\text{b}}^T \times w_{\text{b}})^{-1} \times w_{\text{b}}^T \times y 
 \end{equation}
 
 Using SVD, we can derive that,
 
 \begin{equation}
-(w_{\text{binary}}^T \times w_{\text{binary}})^{-1} \times w_{\text{binary}}^T = (w_{\text{binary}})^{-1(left)}  
+(w_{\text{b}}^T \times w_{\text{b}})^{-1} \times w_{\text{b}}^T = (w_{\text{b}})^{-1(left)}  
 \end{equation}
 
 So we can get that 
 \begin{equation}
-x_{\text{binary}}^T =  (w_{\text{binary}})^{-1(left)} \times y 
+x_{\text{b}}^T =  (w_{\text{b}})^{-1(left)} \times y 
 \end{equation}
 
 We define
 \begin{equation}
-T = C \times Diag(x_{\text{binary}}^T \times A)
+T = C \times Diag(x_{\text{b}}^T \times A)
 \end{equation}
 
 
 Multiply each size by \textsl{T}, we can get
  
 \begin{equation}
-T \times x_{\text{binary}}^T =  T \times (w_{\text{binary}})^{-1(left)} \times y 
+T \times x_{\text{b}}^T =  T \times (w_{\text{b}})^{-1(left)} \times y 
 \end{equation}
 
 It can be proven that 
 \begin{equation}
-T \times x_{\text{binary}}^T =  x_{\text{counting}}
+T \times x_{\text{b}}^T =  x_{\text{c}}
 \end{equation}
 
 So
 \begin{equation}
-x_{\text{counting}} =  T \times (w_{\text{binary}})^{-1(left)} \times y 
+x_{\text{c}} =  T \times (w_{\text{b}})^{-1(left)} \times y 
 \end{equation}
 
-Since \(T \times (w_{\text{binary}})^{-1(left)}\) is a \(M \times 1\) matrix, so multiplying its transposition we can get a constant scalar, 
+Since \(T \times (w_{\text{b}})^{-1(left)}\) is a \(M \times 1\) matrix, so multiplying its transposition we can get a constant scalar, 
 \begin{equation}
-(T \times (w_{\text{binary}})^{-1(left)})^T \times (T \times (w_{\text{binary}})^{-1(left)}) = \lambda
+(T \times (w_{\text{b}})^{-1(left)})^T \times (T \times (w_{\text{b}})^{-1(left)}) = \lambda
 \end{equation}
 
 So, 
 \begin{equation}
-1/{\lambda} \times (T \times (w_{\text{binary}})^{-1(left)})^T \times x_{\text{counting}} =  y
+1/{\lambda} \times (T \times (w_{\text{b}})^{-1(left)})^T \times x_{\text{c}} =  y
 \end{equation}
 
 In conclusion, we can get
 \begin{equation} \label{eq:12}
 \begin{split}
-w_{\text{counting}} & =\ 1/{\lambda} \times (T \times (w_{\text{binary}})^{-1(left)})^T \\
-& = \ 1/{\lambda} \times (C \times Diag(x_{\text{binary}}^T \times A) \times (w_{\text{binary}})^{-1(left)})^T
+w_{\text{c}} & =\ 1/{\lambda} \times (T \times (w_{\text{b}})^{-1(left)})^T \\
+& = \ 1/{\lambda} \times (C \times Diag(x_{\text{b}}^T \times A) \times (w_{\text{b}})^{-1(left)})^T
 \end{split}
 \end{equation}
 
@@ -207,36 +234,36 @@ In this section, the relation between  \(w_{\text{ctr}}\) and \(w_{\text{binary}
 
 Initially, we can get the similar deduction process, 
 \begin{equation}
-w_{\text{binary}} \times x_{\text{binary}}^T = y 
+w_{\text{b}} \times x_{\text{b}}^T = y 
 \end{equation}
 
 \begin{equation}
-(w_{\text{binary}}^T \times w_{\text{binary}}) \times x_{\text{binary}}^T = w_{\text{binary}}^T \times y 
+(w_{\text{b}}^T \times w_{\text{b}}) \times x_{\text{b}}^T = w_{\text{b}}^T \times y 
 \end{equation}
 
 \begin{equation}
-x_{\text{binary}}^T = (w_{\text{binary}}^T \times w_{\text{binary}})^{-1} \times w_{\text{binary}}^T \times y 
+x_{\text{b}}^T = (w_{\text{b}}^T \times w_{\text{b}})^{-1} \times w_{\text{b}}^T \times y 
 \end{equation}
 
 \begin{equation}
-(w_{\text{binary}}^T \times w_{\text{binary}})^{-1} \times w_{\text{binary}}^T = (w_{\text{binary}})^{-1(left)}  
+(w_{\text{b}}^T \times w_{\text{b}})^{-1} \times w_{\text{b}}^T = (w_{\text{b}})^{-1(left)}  
 \end{equation}
 
 \begin{equation}
-x_{\text{binary}}^T =  (w_{\text{binary}})^{-1(left)} \times y 
+x_{\text{b}}^T =  (w_{\text{b}})^{-1(left)} \times y 
 \end{equation}
 
 However, then in order to count the number of \textsl{clicks} for each instance, we redefine the transformation matrix \textsl{T} as following, 
 
 \begin{equation}
-T_{\text{click}} = C \times Diag(x_{\text{binary}}^T \times y)
+T_{\text{click}} = C \times Diag(x_{\text{b}}^T \times y)
 \end{equation}
 
 
 
 From section 1, we can know that, 
 \begin{equation}
-T_{\text{frequency}} = C \times Diag(x_{\text{binary}}^T \times A)
+T_{\text{frequency}} = C \times Diag(x_{\text{b}}^T \times A)
 \end{equation}
 
 Since it is easy to know that,
@@ -248,48 +275,57 @@ Since it is easy to know that,
 Similar to section 1, we can multiply \(T_{\text{ctr}}\) by both sides of equation (17)
 
 \begin{equation}
-T_{\text{ctr}} \times x_{\text{binary}}^T =  T_{\text{ctr}} \times (w_{\text{binary}})^{-1(left)} \times y 
+T_{\text{ctr}} \times x_{\text{b}}^T =  T_{\text{ctr}} \times (w_{\text{b}})^{-1(left)} \times y 
 \end{equation}
 
 It can be proven that 
 
 \begin{equation}
-T_{\text{ctr}} \times x_{\text{binary}}^T =  x_{\text{ctr}}
+T_{\text{ctr}} \times x_{\text{b}}^T =  x_{\text{ctr}}
 \end{equation}
 
 So,
 
 \begin{equation}
- x_{\text{ctr}} =  T_{\text{ctr}} \times (w_{\text{binary}})^{-1(left)} \times y 
+ x_{\text{ctr}} =  T_{\text{ctr}} \times (w_{\text{b}})^{-1(left)} \times y 
 \end{equation}
 
 It is similar to section 1 that \(T_{\text{ctr}} \times (w_{\text{binary}})^{-1(left)}\)is a \(M \times 1\) matrix, so we define, 
 \begin{equation}
-(T_{\text{ctr}} \times (w_{\text{binary}})^{-1(left)})^T \times (T_{\text{ctr}} \times (w_{\text{binary}})^{-1(left)}) = \lambda
+(T_{\text{ctr}} \times (w_{\text{b}})^{-1(left)})^T \times (T_{\text{ctr}} \times (w_{\text{b}})^{-1(left)}) = \lambda
 \end{equation}
 
 So, 
 \begin{equation}
-1/{\lambda} \times (T_{\text{ctr}} \times (w_{\text{binary}})^{-1(left)})^T \times x_{\text{ctr}} =  y
+1/{\lambda} \times (T_{\text{ctr}} \times (w_{\text{b}})^{-1(left)})^T \times x_{\text{ctr}} =  y
 \end{equation}
 
 In conclusion, we can get
 \begin{equation} 
 \begin{split}
-w_{\text{ctr}} & =\ 1/{\lambda} \times (T_{\text{ctr}} \times (w_{\text{binary}})^{-1(left)})^T \\
+w_{\text{ctr}} & =\ 1/{\lambda} \times (T_{\text{ctr}} \times (w_{\text{b}})^{-1(left)})^T \\
 & = \ 1/{\lambda} \times (Diag(T_{\text{click}}) \times (1/T_{\text{frequency}} )^T \\ 
-& \times (w_{\text{binary}})^{-1(left)})^T \\
-& = \ 1/{\lambda} \times (Diag(C \times Diag(x_{\text{binary}}^T \times y)) \\ 
-& \times (1/ (C \times Diag(x_{\text{binary}}^T \times A) )^T) \times (w_{\text{binary}})^{-1(left)})^T
+& \times (w_{\text{b}})^{-1(left)})^T \\
+& = \ 1/{\lambda} \times (Diag(C \times Diag(x_{\text{b}}^T \times y)) \\ 
+& \times (1/ (C \times Diag(x_{\text{b}}^T \times A) )^T) \times (w_{\text{b}})^{-1(left)})^T
 \end{split}
 \end{equation}
 
-
-From the above parts we can see that the weights of counting feature and counting feature itself satisfy that:
+\subsubsection{Non-linearity of Counting Feature}
+We define the non-linear formulation of logistic regression as follows:
 \begin{equation}
-w_{\text{counting}} = f(x_{\text{counting}})
+Pr(w_{\text{i}}|x_{\text{i}}) = Bern_{w_{\text{i}}}[sig(a_{\text{i}})]
 \end{equation}
-So assuming that for the same dataset if the input binary features follows linear regression model, then the corresponding counting feature will follow non-linear model, so it is reasonable we compare the results of logistic regression of binary feature with that of GBRT model for counting feature, the comparison is as follows:
+
+in which \(sig(a_{\text{i}})\) is the sigmoid function and the activation \(a_{\text{i}}\) is given by,
+
+\begin{equation}
+a_{\text{i}} = \Phi^T f(x_{\text{i}})
+\end{equation}
+
+and \(f(x)\) is the nonlinear transformation of the space \(x\). 
+In our case, we can regard \(f(x)\) as the transformation matrix \(T\) which transform the binary feature space into the counting feature space, then in our case of frequency feature and average CTR feature, the weights space should be derived as \(\Phi^T \) and its value should be decided by the relations in last two paragraphs. So we successfully transform the linear logistic regression on \(N\) dimension to the incremental fitting and boosting problem, we will do some experiment to prove the equivalence of them.
+
 
 
 \subsection{Counting Feature Generation and Anaysis in Advertisement Cold Start Problem}
@@ -348,15 +384,66 @@ Trans = ((w_{\text{binary}}^T \times w_{\text{binary}})^{-1})^T \times (Diag(f))
 Then, we will focus on the transformation matrix. 
 
 Since \(((w_{\text{binary}}^T \times w_{\text{binary}})^{-1})^T\) is a symmetric matrix, so it equals to its own transposition. 
-\subsubsection{Minimise Dataset Bias}
-
-
 
 \subsubsection{Toy Data Justification}
 
-\section{Dataset Bias Anaysis}
-\subsection{Bias of Advertisement Campaign Datasets}
+\section{Cross Domain Learning For Online Advertisement}
 \subsection{Domain Adaptation and Transfer Learning}
+Traditional supervised learning is relied on the assumption that the distribution of training and test instances are similar. However, it is rare in real life that the distributions among datasets are unchanged. As discussed in \cite{facebook2015}, many proposed machine learning algorithms and models can be only used under the assumption that the training and test datasets are derived from the same distribution and with same feature space, when the distribution changes, new data needs to be collected and new model needs to be rebuilt. For the industry of online advertisement, it is expensive time-consuming to rebuild the model, in this case, transfer learning is needed which can borrow the knowledge learned from previous advertisement campaigns and apply to new campaigns to increase the efficiency for CTR prediction and decrease the cost for training new model. Although now directly related but similar to the research in \cite{pan2008transfer}, the behaviors of users among different campaigns are volatile and unpredictable, in traditional statistical machine learning problem, it is based on the ideal assumption that the model learned will not affect the real world, independent and identically distributed samples on different campaigns ensures the generalization. However when it comes to the real-world online advertisement industry, after the model is introduced into production, the users behavior will be affected, and also the distribution of the data. In brief, the changeable user behaviors among online advertisement campaigns determines that static statistical model is not suitable for dynamic online advertisement CTR prediction, \textit{transfer learning} is desirable which can save significant time and effort. 
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{transferlearning.eps}
+\caption{Different Learning system between traditional machine learning and transfer learning}
+\label{fig:transfer}
+\end{figure}
+
+At first, using the definitions in \cite{pan2010survey}, we specify \textit{domain} \textit{D} as each campaign's impressions raw data, and \textit{task} \textit{T} as the learning system of the model, in which, \(D = \{X,P(X)\}\), also  \(D = \{Y,P(Y|X)\}\). \(X = \{x_1,x_2, ..., x_n\}\) in which \(x_i\) is one impression in the campaign, and \(Y = \{y_1,y_2, ..., y_n\}\) is the label for each impression, namely whether in this impression the click occurs. The training data is composed of the pairs of \(\{x_i,y_i\}\) which can be used to train the model, and the conditional distribution \(P(Y|X)\). We define \textit{source domain} as the old campaign and \textit{target domain} as the new campaign, then \(X_s\) will be the feature space of source domain and \(P(X_s)\) is the marginal probability distribution of the feature space of source domain, similar, \(X_t\) will be the feature space of target domain and \(P(X_t)\) is the marginal probability distribution of the feature space of target domain. \(Y_s\) is the class label of the features in source domain and \(Y_t\) will be the corresponding label for target domain. By considering the relation between source domain and target domain, as well as source task and target task, the model learning problem can be classified as follows in the scope of online advertisement. 
+
+\begin{enumerate}
+\item if \(D_s = D_t\) and \(T_s = T_t\), this is a traditional machine learning problem. For example, the source and target advertisement campaigns follow the same distribution, and their learning tasks are the same, which are to predict the CTR based on the feature spaces. 
+
+\item if  \(D_s \neq D_t\) and \(T_s = T_t\), which means the source and target domains are distinct but with the same tasks. The problem is also known as \textit{domain adaptation} \cite{arnold2007comparative} since the two domains are different in the marginal probability distribution but same for tasks. This situation can be further classified into two types:
+    \begin{itemize}
+    \item  \(X_s \neq X_t\), which means the feature spaces of the two domains are different with each other, for example, one domain of an advertisement campaign  \textit{International e-commerce} and the other is from \textit{ Software} as shown in \cite{zhang2014real}, if the impressions of the two domains are encoded into binary feature, surely there will be small overlap between the two feature spaces and the feature spaces will be largely different.
+    \item \(P(X_s) \neq P(x_t) \), which means the probability distributions of the two advertisement campaigns are different, so they are from different fields, with different themes. 
+    
+    \end{itemize}
+\item if  \(D_s = D_t\) and \(T_s \neq T_t\), it can also be classified into two types:
+     \begin{itemize}
+    \item  \(Y_s \neq Y_t\), this means the label spaces are different for two domains, as an example for online advertisement, the label in one domain could be click/non-click, which is dichotomic, but in the other domain the labels can be winning price, which is continuous.
+    \item \(P(Y_s|X_s) \neq P(Y_t|X_t) \), this means the conditional probability distributions of the label on feature spaces are different for two domains, one example can be due to the existence of online robots, for one campaign all the impressions are randomly clicked or seen by programs, but the other campaign successfully prevent themselves from the robots so all clicks are effective and valid which simulates the human behaviors in the real world.  
+  \end{itemize}
+\end{enumerate}
+
+In this paper, we will focus on transductive transfer learning, or \textit{domain adaptation}, since our learning task is obvious, which is CTR prediction, and we assumes that the robots are rare in the campaign, so the conditional probability are similar between the two campaigns, since the similar human behaviors will lead to similar advertisement clicking actions. 
+
+As discussed above, domain is composed of feature space and feature probability distribution. In this paper, since our goal is to compare the performance of binary feature and counting feature, so we will represent the feature space and feature probability distribution of source and target domain in Table~\ref{tab:domainadapt}.
+
+\begin{table}[t]
+\begin{tabular}{ c | l | l }
+Feature Types & Feature Space & Feature Distribution \\
+\hline \hline
+Binary Feature & Different & Different  \\
+Counting Feature & Same & Different
+\end{tabular}
+\caption{Source and Target domain comparison for Binary and Counting Features}
+\label{tab:domainadapt}
+\end{table}
+
+To clarify, for binary feature, suppose in the user dataset of online advertisement there is a categorical feature \textit{nationality}, with the value \textit{China}, \textit{Uk}, \textit{USA}, etc. It is not surprisingly that the original field space will be blew up to hundreds of features which is the number of countries in the world, without pre-processing, we even cannot distinguish \textit{Uk} from \textit{Great Britain}, which makes astronomical number of features with the increasing of new impressions. Microsoft claims that they have hundreds of millions features \cite{graepel2010web} for each training dataset, as we are already in the age of big data online advertisement, we can expect that the data volume will increase to the magnitude of hundred billion with hundred billion sparse discrete features. Even for our experiment, millions of features will arise from the dataset when the number of impressions reach 1 million. Therefore, the feature spaces are always distinct between the old campaigns and new campaigns. 
+
+
+
+
+
+
+
+
+
+\subsection{Advertisement Campaign Datasets Shift}
+
 \subsection{Cross-Dataset Generalization}
 
 
@@ -389,6 +476,13 @@ While on the other side, counting feature bears the advantage that its number of
 
 
 \subsection{Performance Comparison of Binary and Counting Feature in CTR prediction Problem}
+
+In this section two experiments are conducted to compare the CTR prediction performance of Binary and Counting feature in terms of logistic regression and gradient boosting regression tree (GBRT) model. The first experiment is based on the public dataset from Ipinyou, which was released by the Chinese RTB company Ipinyou for global RTB algorithm competition in 2013. The dataset includes logs of ad auctions, bids, impressions, and also clicks \ref{zhang2014real}. All the features except for \textit{Usertag} are used in the experiment due to the bias in that feature. The result is as follows:
+
+
+
+
+
 \begin{figure}[h]
 \centering
 \includegraphics[width=\columnwidth]{Datasetbias.eps}
@@ -404,18 +498,7 @@ In this part, the experiments will be done based on the dataset provided by a ad
 \begin{table}[t]
 \centering
 \begin{tabular}{c | c | c | c }
-Campaign & Impressions & Clicks & CTR\\
-\hline
-8908 & 264147 & 2292 & 0.867\% \\
-14501 & 279010 & 1991 & 0.713\% \\
-22134 & 288987 & 3570 & 1.235\% \\
-1414 & 313575 & 8868 & 2.828\% \\
-20224 & 357297 & 1642 & 0.459\% \\
-16280 & 552104 & 978 & 0.177\% \\
-12482 & 557120 & 1290 & 0.231\% \\
-1371 & 576709 & 4813 & 0.834\% \\
-15140 & 764355 & 3774 & 0.493\% \\
-20762 & 1068606 & 431 & 0.040\% 
+· 
 \end{tabular}
 \caption{Statistical Information of top 10 advertisement clients}
 \label{tab:campainid}
@@ -515,6 +598,27 @@ Figure \ref{fig:matriximprove} calculates
 \includegraphics[width=\columnwidth]{variance.eps}
 \caption{Cross-validation of binary and counting feature dataset mean and variance}
 \label{fig:variance}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{2261.eps}
+\caption{Performance 2261}
+\label{fig:2261}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{2997.eps}
+\caption{Performance 2997}
+\label{fig:2997}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{3386.eps}
+\caption{Performance 3386}
+\label{fig:3386}
 \end{figure}
 
 
